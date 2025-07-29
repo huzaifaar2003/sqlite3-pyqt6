@@ -1,9 +1,9 @@
 from socket import create_server
 
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QLineEdit, \
-    QGridLayout, QPushButton, QComboBox, QMainWindow, QTableWidget, QTableWidgetItem,\
-    QDialog
-from PyQt6.QtGui import QAction
+    QGridLayout, QPushButton, QComboBox, QMainWindow, QTableWidget, QTableWidgetItem, \
+    QDialog, QToolBar
+from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt
 import sys
 import sqlite3
@@ -23,16 +23,25 @@ class MainWindow(QMainWindow):
 
         # subitems within the dropdown menus on the top of the window are known as "actions"
 
-        add_student_action = QAction("Add Student", self) # creating "actions"
+        add_student_action = QAction(QIcon("icons/add.png"),"Add Student", self) # creating "actions"
         add_student_action.triggered.connect(self.insert) #push buttons are "clicked", and menu actions are "triggered"
         file_menubar_item.addAction(add_student_action) # adding actions to their respective menubar options
 
         about_action = QAction("About", self)
         help_menubar_item.addAction(about_action)
 
-        search_action = QAction("Search", self)
+        search_action = QAction(QIcon("icons/search.png"),"Search", self)
         search_action.triggered.connect(self.search)
         edit_menubar_item.addAction(search_action)
+
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        self.addToolBar(toolbar)
+        toolbar.addAction(add_student_action)
+        # uses the already existing "action" - that also where it gets the text to display from
+        toolbar.addAction(search_action)
+
+
 
 
 
