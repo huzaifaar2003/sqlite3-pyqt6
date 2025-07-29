@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QLineEdi
     QGridLayout, QPushButton, QComboBox, QMainWindow, QTableWidget, QTableWidgetItem,\
     QDialog
 from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt
 import sys
 import sqlite3
 
@@ -131,9 +132,15 @@ class SearchDialog(QDialog):
         name = self.search_name.text()
         connection = sqlite3.connect("database.db")
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM events WHERE name=?", (name))
-        present_rows = cursor.fetchall()
-        print(present_rows)
+        result = cursor.execute("SELECT * FROM students WHERE name=?", (name,))
+        rows = list(result)
+        print(rows)
+        items = student_management.table.findItems(name, Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            print(item)
+            student_management.table.item(item.row(),1).setSelected(True)
+        cursor.close()
+        connection.close()
 
 
 
