@@ -7,12 +7,22 @@ from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt
 import sys
 import sqlite3
+import mysql.connector
 
 # from PyQt6.QtWidgets.QMainWindow import contextMenuEvent
 
 
 # from PyQt6.QtWidgets.QMainWindow import childEvent
+DB_FILE = "database.db"
+class DatabaseConnection:
+    def __init__(self, db_file = DB_FILE):
+        self.db_file = db_file
 
+    def connection(self):
+        self.connection = sqlite3.connect(self.db_file)
+        return self.connection
+
+# we now can use it in this format: DatabaseConnection().connect()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -61,7 +71,7 @@ class MainWindow(QMainWindow):
         self.table.cellClicked.connect(self.cell_clicked)
 
     def load_data(self):
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         result = connection.execute('SELECT * FROM students')
         self.table.setRowCount(0) # reset number of rows shown to zero
         for row_index, row_data in enumerate(result):
@@ -146,7 +156,7 @@ class InsertDialog(QDialog):
         course = self.courses.itemText(self.courses.currentIndex())
         mobile = self.student_number.text()
 
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         cursor.execute("INSERT INTO students (name,course,mobile) VALUES (?, ?, ?)",
                        (name,course,mobile))
@@ -177,7 +187,7 @@ class SearchDialog(QDialog):
 
     def search_student(self):
         name = self.search_name.text()
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         result = cursor.execute("SELECT * FROM students WHERE name=?", (name,))
         rows = list(result)
@@ -229,7 +239,7 @@ class EditDialog(QDialog):
         self.setLayout(edit_student_layout)
 
     def edit_student(self):
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
         edited_course = self.courses.itemText(self.courses.currentIndex())
         cursor.execute("UPDATE students SET name = ?, course = ?, mobile = ? WHERE id=?",
@@ -264,7 +274,7 @@ class DeleteDialog(QDialog):
         index = student_management.table.currentRow()
         self.id = student_management.table.item(index, 0).text()
 
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         cursor = connection.cursor()
 
         cursor.execute("DELETE FROM students WHERE id = ?",(self.id,))
