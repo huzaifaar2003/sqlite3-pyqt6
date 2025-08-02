@@ -2,7 +2,7 @@ from socket import create_server
 
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QLineEdit, \
     QGridLayout, QPushButton, QComboBox, QMainWindow, QTableWidget, QTableWidgetItem, \
-    QDialog, QToolBar, QStatusBar
+    QDialog, QToolBar, QStatusBar, QMessageBox
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt
 import sys
@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         file_menubar_item.addAction(add_student_action) # adding actions to their respective menubar options
 
         about_action = QAction("About", self)
+        about_action.triggered.connect(self.about)
         help_menubar_item.addAction(about_action)
 
         search_action = QAction(QIcon("icons/search.png"),"Search", self)
@@ -102,6 +103,10 @@ class MainWindow(QMainWindow):
 
     def delete_record(self):
         dialog = DeleteDialog()
+        dialog.exec()
+
+    def about(self):
+        dialog = AboutDialog()
         dialog.exec()
 
 
@@ -238,10 +243,61 @@ class DeleteDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Delete Record")
-        self.setFixedHeight(500)
-        self.setFixedWidth(500)
+        self.setFixedHeight(100)
+        self.setFixedWidth(400)
 
+        delete_student_layout = QGridLayout()
 
+        conformation_text = QLabel("Are you sure you would like to delete this student record?")
+        delete_student_layout.addWidget(conformation_text,0,0,1,2)
+
+        conformation_button_yes = QPushButton("Yes")
+        conformation_button_no = QPushButton("No")
+        delete_student_layout.addWidget(conformation_button_yes,1,0)
+        delete_student_layout.addWidget(conformation_button_no,1,1)
+
+        conformation_button_yes.clicked.connect(self.delete_record)
+
+        self.setLayout(delete_student_layout)
+
+    def delete_record(self):
+        index = student_management.table.currentRow()
+        self.id = student_management.table.item(index, 0).text()
+
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+
+        cursor.execute("DELETE FROM students WHERE id = ?",(self.id,))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        student_management.load_data()
+        delete_message_box = QMessageBox()
+        delete_message_box.setWindowTitle("Delete operation successful")
+        delete_message_box.setText("Deleted student record successfully.")
+        self.close()
+        delete_message_box.exec()
+
+# class AboutDialog(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle("About")
+#         self.setFixedHeight(300)
+#         self.setFixedWidth(300)
+#
+#         about_dialog_layout = QVBoxLayout()
+#
+#         about_text = QLabel("Insert helpful text here and call it a day.")
+#         about_dialog_layout.addWidget(about_text)
+#
+#         self.setLayout(about_dialog_layout)
+
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("About")
+        self.setText("Insert helpful text here and call it a day.")
+        self.exec()
 
 
 
