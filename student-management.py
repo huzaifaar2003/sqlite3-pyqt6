@@ -85,7 +85,9 @@ class MainWindow(QMainWindow):
 
     def load_data(self):
         connection = DatabaseConnection().connect()
-        result = connection.execute('SELECT * FROM students')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM students')
+        result = cursor.fetchall()
         self.table.setRowCount(0) # reset number of rows shown to zero
         for row_index, row_data in enumerate(result):
             self.table.insertRow(row_index)
@@ -202,7 +204,8 @@ class SearchDialog(QDialog):
         name = self.search_name.text()
         connection = DatabaseConnection().connect()
         cursor = connection.cursor()
-        result = cursor.execute("SELECT * FROM students WHERE name=?", (name,))
+        cursor.execute("SELECT * FROM students WHERE name=?", (name,))
+        result = cursor.fetchall()
         rows = list(result)
         print(rows)
         items = student_management.table.findItems(name, Qt.MatchFlag.MatchFixedString)
