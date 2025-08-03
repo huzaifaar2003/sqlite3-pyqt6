@@ -13,14 +13,27 @@ import mysql.connector
 
 
 # from PyQt6.QtWidgets.QMainWindow import childEvent
-DB_FILE = "database.db"
+
+
+# DB_FILE = "database.db"
+# class DatabaseConnection:
+#     def __init__(self, db_file = DB_FILE):
+#         self.db_file = db_file
+#
+#     def connection(self):
+#         self.connection = sqlite3.connect(self.db_file)
+#         return self.connection
+
 class DatabaseConnection:
-    def __init__(self, db_file = DB_FILE):
-        self.db_file = db_file
+    def __init__(self, host = "localhost", user="root", password = "pythoncourse",db = "school"):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.db = db
 
     def connection(self):
-        self.connection = sqlite3.connect(self.db_file)
-        return self.connection
+        connection = mysql.connector.connect(host = self.host, user=self.user, password = self.password ,db = self.db)
+        return connection
 
 # we now can use it in this format: DatabaseConnection().connect()
 
